@@ -1,7 +1,6 @@
-
-n($) {
+(function($) {
 $.fn.desktopify = function($o) {
-	_o = $.extend({
+	var _o = $.extend({
 		icon:
 			'data:image/gif;base64,' +
 			'R0lGODlhAQABAID/AMDAwAAAACH5BAEA' +
@@ -16,19 +15,32 @@ $.fn.desktopify = function($o) {
 			return false;
 		}
 
-		var _popup = window
-			.webkitNotifications
-			.createNotification($icon || _o.icon, $title || _o.title, $body);
+		var title = $title || _o.title,
+			icon = $icon || _o.icon,
+			_popup;
+		if (window.webkitNotifications) {
+			_popup = window
+				.webkitNotifications
+				.createNotification(icon, title, $body);
+		} else if (navigator.mozNotification) {
+			_popup = navigator
+				.mozNotification
+				.createNotification(title, $body, icon);
+		}
 
 		_popup.show();
 
 		if (_o.timeout) {
-			setTimeout(function() { _popup.cancel(); }, _o.timeout);
+
+			// cancel() is not implemented on Firefox
+			setTimeout(function() {
+				if (_popup.cancel) { _popup.cancel(); } }, _o.timeout);
 		}
 	};
 
 	return this.each(function() {
-		_o.support = window.webkitNotifications ? true : false;
+		_o.support = ( window.webkitNotifications || navigator.mozNotification )
+			? true : false;
 		if (!_o.support) {
 			if ($.isFunction(_o.unsupported)) {
 				_o.unsupported();
@@ -38,7 +50,8 @@ $.fn.desktopify = function($o) {
 
 		var _ob = $(this),
 			_check = function() {
-				if (window.webkitNotifications.checkPermission() > 0) {
+				if (window.webkitNotifications &&
+				    window.webkitNotifications.checkPermission() > 0) {
 					window
 						.webkitNotifications
 						.requestPermission(_check);
