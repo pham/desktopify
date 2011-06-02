@@ -1,3 +1,12 @@
 desktopify - HTML5 Desktop Notification plugin for jQuery
 
 See http://j.mp/k7JHyF for demo and detailed information.
+
+In order to use this plugin in Firefox, you should enable the feature
+from `about:config'.
+
+Open `about:config' and set `notification/feature/enabled' to true, and
+restart Firefox.
+
+For more detail, see "Displaying notifications - MDC Docs"
+(https://developer.mozilla.org/en/DOM/Displaying_notifications).
