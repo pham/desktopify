@@ -15,20 +15,14 @@ $.fn.desktopify = function($o) {
 			return false;
 		}
 
-		var title = $title || _o.title,
-			icon = $icon || _o.icon,
-			_popup;
-		if (window.webkitNotifications) {
-			_popup = window
-				.webkitNotifications
-				.createNotification(icon, title, $body);
-		} else if (navigator.mozNotification) {
-			_popup = navigator
-				.mozNotification
-				.createNotification(title, $body, icon);
-		}
+		var _popup = new Notification($title || _o.title, {
+			body: $body,
+			icon: $icon || _o.icon
+		});
 
-		_popup.show();
+		if (!_popup) {
+			return false;
+		}
 
 		if (_o.timeout) {
 			// cancel() is not implemented on Firefox
@@ -39,9 +33,7 @@ $.fn.desktopify = function($o) {
 	};
 
 	return this.each(function() {
-		_o.support =
-			(window.webkitNotifications || navigator.mozNotification) ?
-			   true : false;
+		_o.support = ('Notification' in window);
 
 		if (!_o.support) {
 			if ($.isFunction(_o.unsupported)) {
@@ -52,20 +44,30 @@ $.fn.desktopify = function($o) {
 
 		var _ob = $(this),
 			_check = function() {
-				if (window.webkitNotifications &&
-					window.webkitNotifications.checkPermission() > 0) {
-					window
-						.webkitNotifications
-						.requestPermission(_check);
-					return false;
+				switch (Notification.permission) {
+					case 'granted':
+						if ($.isFunction(_o.callback)) {
+							_o.callback();
+						}
+						break;
+
+					case 'denied':
+						if ($.isFunction(_o.nopermission)) {
+							_o.nopermission();
+						}
+						break;
+
+					default:
+						Notification.requestPermission().then(function($res) {
+							if ($res === 'granted') {
+								_check();
+							}
+						});
+						return false;
 				}
 
 				if (_o.remove) {
 					_ob.hide();
-				}
-
-				if ($.isFunction(_o.callback)) {
-					_o.callback();
 				}
 			};
 

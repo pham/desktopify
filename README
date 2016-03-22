@@ -1,8 +1,6 @@
-desktopify - HTML5 Desktop Notification plugin for jQuery
+desktopify - Notification plugin for jQuery
+
+Easily create and display notifications using Notification API Standard.
 
 See http://j.mp/k7JHyF for demo and detailed information.
 
-To use this module with Firefox on you must install ff-html5notifications
-extentions:
-
-http://code.google.com/p/ff-html5notifications/
